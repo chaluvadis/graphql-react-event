@@ -4,7 +4,8 @@
   "description": "This is a simple example of graphql with react",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon start.js"
   },
   "repository": {
     "type": "git",
@@ -16,5 +17,16 @@
   "bugs": {
     "url": "https://github.com/chaluvadis/graphql-react-event/issues"
   },
-  "homepage": "https://github.com/chaluvadis/graphql-react-event#readme"
+  "homepage": "https://github.com/chaluvadis/graphql-react-event#readme",
+  "dependencies": {
+    "body-parser": "1.18.3",
+    "express": "4.16.4",
+    "express-graphql": "0.7.1",
+    "graphql": "14.0.2"
+  },
+  "devDependencies": {
+    "babel-preset-env": "1.7.0",
+    "babel-register": "6.26.0",
+    "nodemon": "1.18.9"
+  }
 }
