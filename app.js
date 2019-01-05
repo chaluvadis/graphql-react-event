@@ -1,22 +1,45 @@
-import express from 'express';
-import { json } from 'body-parser';
+const express = require('express');
+const bodyParser = require('body-parser');
 
+// mJy8ceOYkVf2avCA
+const mongoose = require("mongoose");
 const graphqlHttp = require('express-graphql');
 const { buildSchema } = require('graphql');
+
+const Event = require('./models/event');
+
 const app = express();
 
 const PORT = 3000;
 
-app.use(json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 
 app.use('/graphql', graphqlHttp({
     schema: buildSchema(`
+        type Event {
+            _id: ID!
+            title: String!
+            description: String!
+            price: Float!
+            date: String!
+        }
+
+        input EventInput {
+            title: String!
+            description: String!
+            price: Float!
+            date: String!
+        }
+
         type  RootQuery {
-            events: [String!]!
+            events: [Event!]!
         }
 
         type RootMutation {
-            createEvent(name:String): String
+            createEvent(eventInput: EventInput): Event
         }
         schema {
             query:RootQuery,
@@ -25,14 +48,28 @@ app.use('/graphql', graphqlHttp({
     `),
     rootValue: {
         events: () => {
-            return ["Late night cooking", "Watching movies", "All night sleeping"];
+            return Event.find({})
+                .then(events => {
+                    return events.map(event => {
+                        return { ...event._doc };
+                    })
+                }).catch(err => console.log(err));
         },
-        createEvent: (args) => {
-            const eventName = args.name;
-            return eventName;
+        createEvent: args => {
+            const event = new Event({
+                title: args.eventInput.title,
+                description: args.eventInput.description,
+                price: args.eventInput.price,
+                date: new Date(args.eventInput.date)
+            });
+            return event.save()
+                .then(res => res)
+                .catch((err) => console.log(err));
         }
     },
     graphiql: true
 }));
 
-app.listen(PORT);
+mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-hiv7m.mongodb.net/${process.env.MONGO_DB}?retryWrites=true`, { useNewUrlParser: true })
+    .then(() => { app.listen(PORT); })
+    .catch((err) => console.log(err));
